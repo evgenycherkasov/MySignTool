@@ -71,13 +71,15 @@
                     Orientation="Vertical"
                     HorizontalAlignment="Center">
             <Label Content=""/>
-            <StackPanel Orientation="Horizontal">
+            <Grid>
                 <Button Content="Generate key"
-                        Command="{Binding GenerateKey}"/>
-                <Button Command="{Binding ShowKey}">
+                        Command="{Binding GenerateKey}"
+                        HorizontalAlignment="Left"/>
+                <Button Command="{Binding ShowKey}"
+                        HorizontalAlignment="Right">
                     <materialDesign:PackIcon Kind="InfoCircleOutline"/>
                 </Button>
-            </StackPanel>
+            </Grid>
             <StackPanel Orientation="Horizontal">
                 <Button Content="Write key"
                         Command="{Binding WriteKeyToFile}"/>

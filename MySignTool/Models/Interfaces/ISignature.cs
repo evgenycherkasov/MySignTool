@@ -7,8 +7,8 @@ namespace MySignTool.Models.Interfaces
     public interface ISignature
     {
         public string Name { get; }
-        public bool VerifySignature(string hash, string signature, IKey Key);
+        public bool VerifySignature(string hash, byte[] signature, IKey Key);
 
-        public string Sign(IKey key, string hash);
+        public byte[] Sign(IKey key, string hash);
     }
 }

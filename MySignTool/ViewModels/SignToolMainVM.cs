@@ -13,6 +13,8 @@ using System.Windows;
 using Microsoft.Win32;
 using MySignTool.Models.Hash;
 using System.IO;
+using Microsoft.WindowsAPICodePack.Dialogs;
+using System.Diagnostics;
 
 namespace MySignTool.ViewModels
 {
@@ -22,7 +24,7 @@ namespace MySignTool.ViewModels
 
         private List<IKey> _keys;
 
-        private IKey _key;
+        private IKey _key = default;
 
         public IKey Key
         {
@@ -92,30 +94,35 @@ namespace MySignTool.ViewModels
             {
                 try
                 {
-                    //Show key info
+                    if (Key.IsKeyEmpty())
+                    {
+                        throw new ApplicationException("Firstly, generate keys");
+                    }
+                    MessageBox.Show($"Key Info:\nGeneral Parameter: {Key.GeneralParameter}\nOpen Parameter: {Key.OpenParameter}\nSecret Parameter: {Key.SecretParameter}");
                 }
                 catch (Exception e)
                 {
                     MessageBox.Show(e.Message);
                 }
             });
-
+            
             Sign = new DelegateCommand(() =>
             {
                 try
                 {
-                    if (Key == default)
+                    if (Key.IsKeyEmpty())
                     {
-                        throw new ApplicationException("Для начала необходимо сгенерировать ключи.");
+                        throw new ApplicationException("Firstly, generate keys");
                     }
                     OpenFileDialog ofd = new OpenFileDialog();
                     if (ofd.ShowDialog() == true)
                     {
                         string filePath = ofd.FileName;
                         string hash = SHA1.GetHash(filePath);
-                        string signature = SelectedAlgorithm.Sign(Key, hash);
+                        byte[] signature = SelectedAlgorithm.Sign(Key, hash);
                         filePath = Path.GetDirectoryName(filePath) + @"signature";
-                        File.WriteAllText(filePath, signature);
+                        using FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate);
+                        fs.Write(signature);
                     } 
                     else
                     {
@@ -132,20 +139,23 @@ namespace MySignTool.ViewModels
             {
                 try
                 {
-                    if (Key == default)
+                    if (Key.IsKeyEmpty())
                     {
-                        throw new ApplicationException("Для начала необходимо сгенерировать ключи.");
+                        throw new ApplicationException("Firstly, generate keys");
                     }
                     OpenFileDialog ofd = new OpenFileDialog();
                     if (ofd.ShowDialog() == true)
                     {
                         string filePath = ofd.FileName;
                         string hash = SHA1.GetHash(filePath);
-                        string signature = default;
+                        byte[] signature = default;
+
                         if (ofd.ShowDialog() == true)
                         {
                             filePath = ofd.FileName;
-                            signature = File.ReadAllText(filePath);
+                            using FileStream fs = new FileStream(filePath, FileMode.Open);
+                            signature = new byte[fs.Length];
+                            fs.Read(signature);
                         }
                         if (signature == default)
                         {
@@ -154,11 +164,11 @@ namespace MySignTool.ViewModels
                         bool isSignatureValid = SelectedAlgorithm.VerifySignature(hash, signature, Key);
                         if (isSignatureValid)
                         {
-                            MessageBox.Show("Валидна");
+                            MessageBox.Show("Signature is valid");
                         }
                         else
                         {
-                            MessageBox.Show("Не валидна");
+                            MessageBox.Show("Signature is not valid");
                         }
                     }
                     else
@@ -174,12 +184,45 @@ namespace MySignTool.ViewModels
 
             WriteKeyToFile = new DelegateCommand(() =>
             {
-                
+                CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+                if (Key.IsKeyEmpty())
+                {
+                    throw new ApplicationException("Firstly, generate keys");
+                }
+                dialog.InitialDirectory = "C:\\Users";
+                dialog.IsFolderPicker = true;
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    KeyWorkerClass.WriteKeyToFile(Key, dialog.FileName);
+                }
+                else
+                {
+                    return;
+                }
             });
 
             LoadKeyFromFile = new DelegateCommand(() =>
             {
-
+                try
+                {
+                    OpenFileDialog ofd = new OpenFileDialog();
+                    if (ofd.ShowDialog() == true)
+                    {
+                        string filePath = ofd.FileName;
+                        GeneralKeyType key = KeyWorkerClass.LoadKeyFromFile(filePath);
+                        IKey loadedKey = _keys.Find((k) => k.Name == _selectedAlgorithm.Name);
+                        string type = loadedKey.LoadKey(key);
+                        MessageBox.Show($"{type} key is loaded successfully!");
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                }
             });
         }
     }

@@ -23,20 +23,47 @@ namespace MySignTool.Models.Keys
 
         private string _phi = default;
 
-        public string GeneralParameter => _modulus;
+        public string GeneralParameter
+        {
+            get
+            {
+                return _modulus;
+            }
+            set
+            {
+                _modulus = value;
+            }
+        }
 
-        [JsonIgnore]
         public string Phi => _phi;
-        public string OpenParameter => _openExponent;
+        public string OpenParameter
+        {
+            get
+            {
+                return _openExponent;
+            }
+            set
+            {
+                _openExponent = value;
+            }
+        }
 
-        public string SecretParameter => _secretExponent;
+        public string SecretParameter
+        {
+            get
+            {
+                return _secretExponent;
+            }
+            set
+            {
+                _secretExponent = value;
+            }
+        }
 
         public string Name => "RSA DS";
 
-        [JsonIgnore]
         public int ReadingSize => _readingSize;
 
-        [JsonIgnore]
         public int PackingSize => _packingSize;
         public void GenerateKey()
         {
@@ -57,14 +84,61 @@ namespace MySignTool.Models.Keys
                 _phi = phi.ToString();
                 _openExponent = pubExp.ToString();
                 _secretExponent = privateExponentInt.ToString();
-                int keySize = NumMethodsClass.GetModuleSize(modulus);
-                _readingSize = keySize - 1;
-                _packingSize = keySize;
+                RegenerateSizeParameters();
             } 
             catch (Exception)
             {
-                throw new ApplicationException("Возникла ошибка при генерации ключа");
+                throw new ApplicationException("Error via generate key");
             }
+        }
+
+        public bool IsKeyEmpty()
+        {
+            return String.IsNullOrEmpty(GeneralParameter);
+        }
+
+        public bool IsKeyValid(bool isSigning)
+        {
+            switch (isSigning)
+            {
+                case true:
+                    return !(String.IsNullOrEmpty(GeneralParameter) || String.IsNullOrEmpty(SecretParameter));
+                case false:
+                    return !(String.IsNullOrEmpty(GeneralParameter) || String.IsNullOrEmpty(OpenParameter));
+            }
+        }
+
+        public string LoadKey(GeneralKeyType key)
+        {
+            try
+            {
+                switch (key.Type)
+                {
+                    case "Public":
+                        OpenParameter = key.Param;
+                        GeneralParameter = key.GeneralParameter;
+                        break;
+                    case "Private":
+                        SecretParameter = key.Param;
+                        GeneralParameter = key.GeneralParameter;
+                        break;
+                    default:
+                        throw new ApplicationException();
+                }
+                RegenerateSizeParameters();
+                return key.Type;
+            }
+            catch
+            {
+                throw new ApplicationException("Failed to load the key, perhaps the key does not match the selected algorithm");
+            }
+        }
+
+        private void RegenerateSizeParameters()
+        {
+            int keySize = NumMethodsClass.GetModuleSize(BigInteger.Parse(GeneralParameter));
+            _readingSize = keySize - 1;
+            _packingSize = keySize;
         }
     }
 }

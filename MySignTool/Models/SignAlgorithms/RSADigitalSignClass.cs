@@ -11,26 +11,43 @@ namespace MySignTool.Models.SignAlgorithms
     {
         public string Name => "RSA DS";
 
-        public string Sign(IKey Key, string hash)
+        public byte[] Sign(IKey Key, string hash)
         {
             byte[] hashBytes = Encoding.Default.GetBytes(hash);
-            byte[] signature = CalculateRSA(hashBytes, Key as RsaKey);
-            return Encoding.Default.GetString(signature);
+            if (Key.IsKeyValid(isSigning: true))
+            {
+                byte[] signature = CalculateRSA(hashBytes, Key as RsaKey);
+                return signature;
+            } 
+            else
+            {
+                throw new ApplicationException("Key is not valid");
+            }
         }
 
-        public bool VerifySignature(string hash, string signature, IKey Key)
+        public bool VerifySignature(string hash, byte[] signature, IKey Key)
         {
             try
             {
-                byte[] hashBytes = Encoding.Default.GetBytes(hash);
-                byte[] signatureBytes = Encoding.Default.GetBytes(signature);
-                byte[] result = CalculateRSA(signatureBytes, Key as RsaKey, false);
-                string resultHash = Encoding.Default.GetString(result);
-                if (resultHash == hash)
+                if (Key.IsKeyValid(isSigning: false))
                 {
+                    byte[] hashBytes = Encoding.Default.GetBytes(hash);
+                    byte[] signatureBytes = signature;
+                    byte[] result = CalculateRSA(signatureBytes, Key as RsaKey, false);
+                    string resultHash = Encoding.Default.GetString(result);
+                    for (int i = 0; i < hash.Length; ++i)
+                    {
+                        if (resultHash[i] != hash[i])
+                        {
+                            return false;
+                        }
+                    }
                     return true;
                 }
-                return false;
+                else
+                {
+                    throw new ApplicationException("Key is not valid");
+                }
             }
             catch (ApplicationException e)
             {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySignTool.Models.Keys;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,5 +14,10 @@ namespace MySignTool.Models.Interfaces
         public int ReadingSize { get; }
         public int PackingSize { get; }
         public void GenerateKey();
+
+        public string LoadKey(GeneralKeyType key);
+        public bool IsKeyEmpty();
+
+        public bool IsKeyValid(bool isSigning);
     }
 }
