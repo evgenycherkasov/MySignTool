@@ -66,11 +66,13 @@ namespace MySignTool.ViewModels
 
             SigningAlgorithms = new ObservableCollection<ISignature>
             {
-                new RSADigitalSignClass()
+                new RSADigitalSignClass(),
+                new ElGamalDigitalSignClass()
             };
             _keys = new List<IKey>
             {
-                new RsaKey()
+                new RsaKey(),
+                new ElGamalKey()
             };
             RaisePropertyChanged(nameof(SigningAlgorithms));
             SelectedAlgorithm = SigningAlgorithms.First();
