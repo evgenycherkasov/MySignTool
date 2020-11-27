@@ -16,6 +16,7 @@ using MySignTool.ViewModels;
 
 using MySignTool.Helpers;
 using System.Diagnostics;
+using System.Threading;
 
 namespace MySignTool
 {
@@ -26,9 +27,13 @@ namespace MySignTool
     {
         public MainWindow()
         {
+            Thread thread = new Thread(() =>
+            {
+                NumMethodsClass.LoadPyScript();
+            });
+            thread.Start();
             InitializeComponent();
             DataContext = new SignToolMainVM();
-            NumMethodsClass.LoadPyScript();
         }
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {

@@ -87,6 +87,7 @@ namespace MySignTool.ViewModels
                 {
                     Key.GenerateKey();
                     RaisePropertyChanged(nameof(Key));
+                    MessageBox.Show("Keys generated successfully!");
                 }
                 catch (Exception e)
                 {

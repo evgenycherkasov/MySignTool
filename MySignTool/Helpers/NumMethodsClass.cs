@@ -16,6 +16,7 @@ namespace MySignTool.Helpers
         private static string _pyPath = "DsaKeyGen.py";
         private static string _funcName = "getprime";
         private static dynamic _getPrime;
+
         public static void LoadPyScript()
         {
             _engine = Python.CreateEngine();
@@ -26,6 +27,7 @@ namespace MySignTool.Helpers
             _engine.ExecuteFile(_pyPath, _scope);
             _getPrime = _scope.GetVariable(_funcName);
         }
+
         public static BigInteger GenerateBigInteger(BigInteger min, BigInteger max)
         {
             BigInteger diff = max - min;
