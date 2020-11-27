@@ -1,4 +1,6 @@
-﻿using MySignTool.Helpers.Extensions;
+﻿using IronPython.Hosting;
+using Microsoft.Scripting.Hosting;
+using MySignTool.Helpers.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -9,6 +11,21 @@ namespace MySignTool.Helpers
 {
     public static class NumMethodsClass
     {
+        private static ScriptEngine _engine;
+        private static ScriptScope _scope;
+        private static string _pyPath = "DsaKeyGen.py";
+        private static string _funcName = "getprime";
+        private static dynamic _getPrime;
+        public static void LoadPyScript()
+        {
+            _engine = Python.CreateEngine();
+            _scope = _engine.CreateScope();
+            ICollection<string> searchPaths = _engine.GetSearchPaths();
+            searchPaths.Add(@".\Lib");
+            _engine.SetSearchPaths(searchPaths);
+            _engine.ExecuteFile(_pyPath, _scope);
+            _getPrime = _scope.GetVariable(_funcName);
+        }
         public static BigInteger GenerateBigInteger(BigInteger min, BigInteger max)
         {
             BigInteger diff = max - min;
@@ -66,6 +83,30 @@ namespace MySignTool.Helpers
             }
             return 17;
         }
+
+        public static BigInteger GenerateBigInteger(int countOfBits)
+        {
+            var manager = new RNGCryptoServiceProvider();
+            byte[] bytes = new byte[countOfBits + 1];
+            manager.GetBytes(bytes);
+            bytes[countOfBits] = 0;
+            bytes[countOfBits - 1] = 0x80;
+            return new BigInteger(bytes);
+        }
+
+        public static BigInteger GeneratePrimeByPython(int countOfBits)
+        {
+            try
+            {
+                dynamic result = _getPrime(countOfBits);
+                return BigInteger.Parse(Convert.ToString(result));
+            }
+            catch
+            {
+                throw new ApplicationException("An error occurred while loading the algorithm!");
+            }
+        }
+
         public static int GetModuleSize(BigInteger module)
         {
             return module.ToByteArray().Length;

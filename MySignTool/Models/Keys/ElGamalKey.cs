@@ -84,7 +84,7 @@ namespace MySignTool.Models.Keys
 
         public void GenerateKey()
         {
-            ElgamalPublicParams pubKey = GeneratePublicElgamalParams(30);
+            ElgamalPublicParams pubKey = GeneratePublicElgamalParams(100);
             _modulus = pubKey.Modulus.ToString();
             _generator = pubKey.Generator.ToString();
             ElgamalPrivateKey privateKey = GetElgamalPrivateKey(pubKey);

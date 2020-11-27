@@ -8,9 +8,9 @@ namespace MySignTool.Models.Interfaces
     public interface IKey
     {
         public string Name { get; }
-        public string GeneralParameter { get; }
-        public string OpenParameter { get; }
-        public string SecretParameter { get; }
+        public string GeneralParameter { get; set; }
+        public string OpenParameter { get; set; }
+        public string SecretParameter { get; set; }
         public int ReadingSize { get; }
         public int PackingSize { get; }
         public void GenerateKey();

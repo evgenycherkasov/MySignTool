@@ -16,12 +16,12 @@ namespace MySignTool.Models.Hash
             return BitConverter.ToString(hash).Replace("-", String.Empty);
         }
 
-        public static string GetHash(string path)
+        public static byte[] GetHash(string path)
         {
             using var sha1 = System.Security.Cryptography.SHA1.Create();
             using var stream = File.OpenRead(path);
             byte[] hash = sha1.ComputeHash(stream);
-            return BitConverter.ToString(hash).Replace("-", String.Empty);
+            return hash;
         }
     }
 }

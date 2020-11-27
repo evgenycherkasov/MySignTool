@@ -31,7 +31,7 @@ namespace MySignTool.Helpers.Extensions
         /// <param name="n">Тестируемое число</param>
         /// <param name="testCount">Колличество итераций проверки</param>
         /// <returns></returns>        
-        public static bool IsPrime(this BigInteger n, uint testCount = 40)
+        public static bool IsPrime(this BigInteger n, uint testCount = 20)
         {
             if (testCount < 10)
             {

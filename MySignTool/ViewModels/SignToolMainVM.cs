@@ -67,12 +67,14 @@ namespace MySignTool.ViewModels
             SigningAlgorithms = new ObservableCollection<ISignature>
             {
                 new RSADigitalSignClass(),
-                new ElGamalDigitalSignClass()
+                new ElGamalDigitalSignClass(),
+                new DSAClass()
             };
             _keys = new List<IKey>
             {
                 new RsaKey(),
-                new ElGamalKey()
+                new ElGamalKey(),
+                new DSAKey()
             };
             RaisePropertyChanged(nameof(SigningAlgorithms));
             SelectedAlgorithm = SigningAlgorithms.First();
@@ -117,14 +119,16 @@ namespace MySignTool.ViewModels
                         throw new ApplicationException("Firstly, generate keys");
                     }
                     OpenFileDialog ofd = new OpenFileDialog();
+                    ofd.Title = "Choose file to sign";
                     if (ofd.ShowDialog() == true)
                     {
                         string filePath = ofd.FileName;
-                        string hash = SHA1.GetHash(filePath);
+                        byte[] hash = SHA1.GetHash(filePath);
                         byte[] signature = SelectedAlgorithm.Sign(Key, hash);
-                        filePath = Path.GetDirectoryName(filePath) + @"signature";
+                        filePath = Path.GetDirectoryName(filePath) + @"\signature";
                         using FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate);
                         fs.Write(signature);
+                        MessageBox.Show("Signature generated!");
                     } 
                     else
                     {
@@ -146,12 +150,13 @@ namespace MySignTool.ViewModels
                         throw new ApplicationException("Firstly, generate keys");
                     }
                     OpenFileDialog ofd = new OpenFileDialog();
+                    ofd.Title = "Choose file to verify";
                     if (ofd.ShowDialog() == true)
                     {
                         string filePath = ofd.FileName;
-                        string hash = SHA1.GetHash(filePath);
+                        byte[] hash = SHA1.GetHash(filePath);
                         byte[] signature = default;
-
+                        ofd.Title = "Choose signature";
                         if (ofd.ShowDialog() == true)
                         {
                             filePath = ofd.FileName;

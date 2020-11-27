@@ -12,9 +12,9 @@ namespace MySignTool.Models.SignAlgorithms
     {
         public string Name => "ElGamal-DS";
 
-        public byte[] Sign(IKey Key, string hash)
+        public byte[] Sign(IKey Key, byte[] hash)
         {
-            byte[] hashBytes = Encoding.Default.GetBytes(hash);
+            byte[] hashBytes = hash;
             List<byte> result = new List<byte>(hashBytes.Length);
             if (!Key.IsKeyValid(isSigning: true))
             {
@@ -76,7 +76,7 @@ namespace MySignTool.Models.SignAlgorithms
             return result.ToArray();
         }
 
-        public bool VerifySignature(string hash, byte[] signature, IKey Key)
+        public bool VerifySignature(byte[] hash, byte[] signature, IKey Key)
         {
             if (!Key.IsKeyValid(isSigning: true))
             {
@@ -87,7 +87,7 @@ namespace MySignTool.Models.SignAlgorithms
                 int offsetDigest = 0;
                 int readSize = Key.PackingSize;
                 int writeSize = Key.ReadingSize;
-                byte[] hashBytes = Encoding.Default.GetBytes(hash);
+                byte[] hashBytes = hash;
                 BigInteger publicParam = BigInteger.Parse(Key.OpenParameter);
 
                 string[] generalParameters = Key.GeneralParameter.Split(" ");

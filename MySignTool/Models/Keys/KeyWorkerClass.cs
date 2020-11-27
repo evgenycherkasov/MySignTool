@@ -53,7 +53,7 @@ namespace MySignTool.Models.Keys
             }
             catch
             {
-                throw new ApplicationException("Ключ не валиден!");
+                throw new ApplicationException("Key is not valid!");
             }
         }
     }

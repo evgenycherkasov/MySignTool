@@ -13,6 +13,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MySignTool.ViewModels;
+
+using MySignTool.Helpers;
+using System.Diagnostics;
+
 namespace MySignTool
 {
     /// <summary>
@@ -24,6 +28,7 @@ namespace MySignTool
         {
             InitializeComponent();
             DataContext = new SignToolMainVM();
+            NumMethodsClass.LoadPyScript();
         }
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {

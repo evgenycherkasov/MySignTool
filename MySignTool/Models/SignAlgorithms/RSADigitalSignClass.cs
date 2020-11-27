@@ -11,9 +11,9 @@ namespace MySignTool.Models.SignAlgorithms
     {
         public string Name => "RSA DS";
 
-        public byte[] Sign(IKey Key, string hash)
+        public byte[] Sign(IKey Key, byte[] hash)
         {
-            byte[] hashBytes = Encoding.Default.GetBytes(hash);
+            byte[] hashBytes = hash;
             if (Key.IsKeyValid(isSigning: true))
             {
                 byte[] signature = CalculateRSA(hashBytes, Key as RsaKey);
@@ -25,19 +25,18 @@ namespace MySignTool.Models.SignAlgorithms
             }
         }
 
-        public bool VerifySignature(string hash, byte[] signature, IKey Key)
+        public bool VerifySignature(byte[] hash, byte[] signature, IKey Key)
         {
             try
             {
                 if (Key.IsKeyValid(isSigning: false))
                 {
-                    byte[] hashBytes = Encoding.Default.GetBytes(hash);
+                    byte[] hashBytes = hash;
                     byte[] signatureBytes = signature;
                     byte[] result = CalculateRSA(signatureBytes, Key as RsaKey, false);
-                    string resultHash = Encoding.Default.GetString(result);
                     for (int i = 0; i < hash.Length; ++i)
                     {
-                        if (resultHash[i] != hash[i])
+                        if (result[i] != hash[i])
                         {
                             return false;
                         }
